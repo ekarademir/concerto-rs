@@ -1,0 +1,77 @@
+//! Concerto grammar
+// !!! Incomplete !!!
+
+/**
+ * Adapted from https://github.com/accordproject/concerto/blob/main/packages/concerto-cto/lib/parser.pegjs
+*/
+
+LineTerminator = _{"\n" | "\r" | "\r\n" | "\u{2028}" | "\u{2029}"}
+SingleLineComment = _{ "//" ~ ( !LineTerminator ~ ANY) }
+MultiLineComment = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+
+// Special rules that gets ignored by Pest implicitly
+WHITESPACE = _{ WHITE_SPACE }
+COMMENT = _{ SingleLineComment | MultiLineComment }
+
+IdentifierStart = { (LETTER | "$" | "_"){1} }
+IdentifierPart = { IdentifierStart ~ ( LETTER | NUMBER | CONNECTOR_PUNCTUATION | NONSPACING_MARK | ENCLOSING_MARK )* }
+IdentifierName = @{ IdentifierStart ~ IdentifierPart* }
+
+/* Concerto Tokens */
+ConcertoToken = _{ "concerto" }
+VersionToken = _{ "version" }
+NamespaceToken = _{ "namespace" }
+AbstractToken = _{ "abstract" }
+ConceptToken = _{ "concept" }
+TransactionToken = _{ "transaction" }
+EventToken = _{ "event" }
+ParticipantToken = _{ "participant" }
+ScalarToken = _{ "Scalar" }
+FromToken = _{ "from" }
+AllToken = _{ "*" }
+EnumToken = _{ "enum" }
+MapToken = _{ "map" }
+ImportToken = _{ "import" }
+NullToken = _{ "null" }
+FalseToken = _{ "false" }
+TrueToken = _{ "true" }
+/* /Concerto Tokens */
+
+/* SemVer */
+PositiveDigit = _{ '1' .. '9' }
+Digit = _{ '0' .. '9' }
+NonDigit = _{ ('a' .. 'z' | 'A' .. 'Z' | "-") }
+IdentifierChar = _{ (NonDigit | Digit) }
+AlphanumericIdentifier = _{ Digit* ~ NonDigit ~ IdentifierChar* }
+
+NumericIdentifier = @{ ("0"  | ( PositiveDigit ~ Digit* ) )  }
+BuildIdentifier = @{ AlphanumericIdentifier | Digit* }
+PrereleaseIdentifier = @{ AlphanumericIdentifier | NumericIdentifier }
+
+Build = { BuildIdentifier ~ ("."  ~ BuildIdentifier)* }
+Prerelease = { PrereleaseIdentifier ~ ("."  ~ PrereleaseIdentifier)* }
+MajorVersion = { NumericIdentifier }
+MajorMinorVersion = { NumericIdentifier ~ "."  ~ NumericIdentifier }
+MajorMinorPatchVersion = { NumericIdentifier ~ "."  ~ NumericIdentifier ~ "."  ~ NumericIdentifier }
+Version = { MajorMinorPatchVersion | MajorMinorVersion | MajorVersion }
+
+/// Semantic Version Definition
+SemVer = { Version ~ ("-" ~ Prerelease)? ~ ("+" ~ Build)? }
+/* /SemVer */
+
+
+/// Namespace definition of a model file
+Namespace = { NamespaceToken ~ IdentifierName }
+
+/// A Concerto Model file
+/// - Metadata about the file
+/// - Model Decorators
+/// - Model Namespace
+/// - Import statements
+/// - Declarations
+Model = {
+  SOI ~
+  // There has to be only one namespace definition
+  (Namespace){1} ~
+  EOI
+}
