@@ -63,12 +63,12 @@ pub(crate) fn semver(pair: Pair<Rule>) -> Result<SemVer, Box<dyn std::error::Err
 }
 
 #[derive(Default, Debug, PartialEq)]
-pub(crate) struct SemVer {
-    major: u32,
-    minor: u32,
-    patch: u32,
-    prerelease: String,
-    build: String,
+pub struct SemVer {
+    pub major: u32,
+    pub minor: u32,
+    pub patch: u32,
+    pub prerelease: String,
+    pub build: String,
 }
 
 #[cfg(test)]

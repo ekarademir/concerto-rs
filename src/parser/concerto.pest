@@ -59,9 +59,14 @@ Version = { MajorMinorPatchVersion | MajorMinorVersion | MajorVersion }
 SemVer = { Version ~ ("-" ~ Prerelease)? ~ ("+" ~ Build)? }
 /* /SemVer */
 
+/* Namespace */
+QualifiedName = @{ IdentifierName ~ ("." ~ IdentifierName)* }
+VersionedQualifiedNamespace = { QualifiedName ~ "@" ~ SemVer }
+QualifiedNamespaceDeclaration = { VersionedQualifiedNamespace  | QualifiedName }
 
 /// Namespace definition of a model file
-Namespace = { NamespaceToken ~ IdentifierName }
+Namespace = { NamespaceToken ~ QualifiedNamespaceDeclaration }
+/* /Namespace */
 
 /// A Concerto Model file
 /// - Metadata about the file

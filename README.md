@@ -11,3 +11,4 @@ Previous attempt to implement the parser in nom is parked in another repo [here]
 ### 0.0.1
 
 - SemVer parser
+- Namespace parser
